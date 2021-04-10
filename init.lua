@@ -1,9 +1,15 @@
 character_creator = {}
-character_creator.skins = dofile(minetest.get_modpath("character_creator") .. "/skins.lua")
+local mp = minetest.get_modpath("character_creator");
+character_creator.skins = dofile(mp.."/skins.lua")
 
 local skinsdb
 if minetest.get_modpath("skinsdb") and minetest.global_exists("skins") then
 	skinsdb = skins
+end
+
+if minetest.get_modpath("ccloth") then
+  dofile(mp.."/cloths.lua")
+  --dofile(mp.."/base_texture.lua")
 end
 
 local skin_default = {
@@ -48,7 +54,7 @@ end)
 -- Saved skins_array indexes in this
 local skin_indexes = {}
 
-local function show_formspec(player)
+function character_creator.show_formspec(player)
 	local indexes = skin_indexes[player]
 
 	local formspec = "size[15,9.5]"
@@ -160,7 +166,13 @@ local function save_skin(player)
 	save_data("shoes")
 end
 
-local function get_texture(player)
+function character_creator.get_gender(player)
+  local player_meta = player:get_meta()
+  local gender = player_meta:get_string("character_creator:gender")
+  return gender
+end
+
+function character_creator.get_texture(player)
 	local player_meta = player:get_meta()
 	local indexes = skin_indexes[player]
 	local texture = ""
@@ -270,7 +282,7 @@ minetest.register_on_joinplayer(function(player)
 			show_formspec(player)
 		end
 		function skin_obj:get_texture()
-			return get_texture(minetest.get_player_by_name(self:get_meta("playername")))
+			return character_creator.get_texture(minetest.get_player_by_name(self:get_meta("playername")))
 		end
 
 		-- set data
